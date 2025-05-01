@@ -43,7 +43,7 @@ public class GestionApp {
         panel.add(new JLabel("Dirección IP:"), gbc);
 
         gbc.gridx = 1;
-        ipField = new JTextField("localhost", 15);
+        ipField = new JTextField("192.168.1.135", 15);
         panel.add(ipField, gbc);
 
         gbc.gridx = 0;
@@ -75,7 +75,7 @@ public class GestionApp {
         panel.add(new JLabel("Base de Datos:"), gbc);
 
         gbc.gridx = 1;
-        dbField = new JTextField(15);
+        dbField = new JTextField("sistema_gestion", 15);
         panel.add(dbField, gbc);
 
         // Botón de conexión
