@@ -248,9 +248,18 @@ public class GestionApp {
 
             // Caso especial para ventas
             if (entityName.equals("ventas")) {
-                query = "SELECT v.*, c.nombre as cliente " +
+                query = "SELECT v.*, c.nombre as cliente, e.nombre as empleado " +
                         "FROM ventas v " +
-                        "LEFT JOIN clientes c ON v.cliente_id = c.id";
+                        "LEFT JOIN clientes c ON v.cliente_id = c.id " +
+                        "LEFT JOIN empleados e ON v.empleado_id = e.id";
+            }
+
+            // Caso especial para entregas
+            if (entityName.equals("entregas")) {
+                query = "SELECT e.*, v.id as venta_num, emp.nombre as empleado " +
+                        "FROM entregas e " +
+                        "LEFT JOIN ventas v ON e.venta_id = v.id " +
+                        "LEFT JOIN empleados emp ON e.empleado_id = emp.id";
             }
 
             Statement stmt = connection.createStatement();
@@ -326,23 +335,66 @@ public class GestionApp {
 
                 gbc.gridx = 1;
 
-                // Crear el campo apropiado según el tipo de dato
+                // Crear el campo apropiado según el tipo de dato y la entidad
                 JComponent field;
-                if (columnName.toLowerCase().contains("cliente_id") && entityName.equals("ventas")) {
-                    // Caso especial: selector de clientes para ventas
-                    JComboBox<ComboItem> comboBox = new JComboBox<>();
-                    loadClientsIntoComboBox(comboBox);
-                    field = comboBox;
-                } else if (dataType.contains("INT")) {
-                    field = new JTextField(10);
-                } else if (dataType.contains("VARCHAR") || dataType.contains("TEXT")) {
-                    field = new JTextField(15);
-                } else if (dataType.contains("DATE") || dataType.contains("TIME")) {
-                    field = new JTextField("YYYY-MM-DD", 10);
-                } else if (dataType.contains("DECIMAL") || dataType.contains("FLOAT")) {
-                    field = new JTextField("0.00", 10);
-                } else {
-                    field = new JTextField(15);
+
+                // Caso especial para ventas: cliente_id y empleado_id como ComboBox
+                if (entityName.equals("ventas")) {
+                    if (columnName.equals("cliente_id")) {
+                        JComboBox<ComboItem> comboBox = new JComboBox<>();
+                        loadClientsIntoComboBox(comboBox);
+                        field = comboBox;
+                    } else if (columnName.equals("empleado_id")) {
+                        JComboBox<ComboItem> comboBox = new JComboBox<>();
+                        loadEmployeesIntoComboBox(comboBox);
+                        field = comboBox;
+                    } else if (dataType.contains("INT")) {
+                        field = new JTextField(10);
+                    } else if (dataType.contains("VARCHAR") || dataType.contains("TEXT")) {
+                        field = new JTextField(15);
+                    } else if (dataType.contains("DATE") || dataType.contains("TIME")) {
+                        field = new JTextField("YYYY-MM-DD", 10);
+                    } else if (dataType.contains("DECIMAL") || dataType.contains("FLOAT")) {
+                        field = new JTextField("0.00", 10);
+                    } else {
+                        field = new JTextField(15);
+                    }
+                }
+                // Caso especial para entregas: venta_id y empleado_id como ComboBox
+                else if (entityName.equals("entregas")) {
+                    if (columnName.equals("venta_id")) {
+                        JComboBox<ComboItem> comboBox = new JComboBox<>();
+                        loadSalesIntoComboBox(comboBox);
+                        field = comboBox;
+                    } else if (columnName.equals("empleado_id")) {
+                        JComboBox<ComboItem> comboBox = new JComboBox<>();
+                        loadEmployeesIntoComboBox(comboBox);
+                        field = comboBox;
+                    } else if (dataType.contains("INT")) {
+                        field = new JTextField(10);
+                    } else if (dataType.contains("VARCHAR") || dataType.contains("TEXT")) {
+                        field = new JTextField(15);
+                    } else if (dataType.contains("DATE") || dataType.contains("TIME")) {
+                        field = new JTextField("YYYY-MM-DD", 10);
+                    } else if (dataType.contains("DECIMAL") || dataType.contains("FLOAT")) {
+                        field = new JTextField("0.00", 10);
+                    } else {
+                        field = new JTextField(15);
+                    }
+                }
+                // Caso general para otras entidades
+                else {
+                    if (dataType.contains("INT")) {
+                        field = new JTextField(10);
+                    } else if (dataType.contains("VARCHAR") || dataType.contains("TEXT")) {
+                        field = new JTextField(15);
+                    } else if (dataType.contains("DATE") || dataType.contains("TIME")) {
+                        field = new JTextField("YYYY-MM-DD", 10);
+                    } else if (dataType.contains("DECIMAL") || dataType.contains("FLOAT")) {
+                        field = new JTextField("0.00", 10);
+                    } else {
+                        field = new JTextField(15);
+                    }
                 }
 
                 panel.add(field, gbc);
@@ -426,7 +478,7 @@ public class GestionApp {
 
             // Añadir componentes al diálogo
             dialog.setLayout(new BorderLayout());
-            dialog.add(panel, BorderLayout.CENTER);
+            dialog.add(new JScrollPane(panel), BorderLayout.CENTER);
             dialog.add(buttonPanel, BorderLayout.SOUTH);
             dialog.setVisible(true);
 
@@ -441,11 +493,11 @@ public class GestionApp {
     private void loadClientsIntoComboBox(JComboBox<ComboItem> comboBox) {
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT id, nombre FROM clientes");
+            ResultSet rs = stmt.executeQuery("SELECT id, CONCAT(nombre, ' ', apellido) as nombre_completo FROM clientes");
 
             while (rs.next()) {
                 int id = rs.getInt("id");
-                String nombre = rs.getString("nombre");
+                String nombre = rs.getString("nombre_completo");
                 comboBox.addItem(new ComboItem(nombre, id));
             }
 
@@ -454,6 +506,50 @@ public class GestionApp {
 
         } catch (SQLException ex) {
             System.err.println("Error al cargar clientes: " + ex.getMessage());
+        }
+    }
+
+    // Cargar empleados en un combobox
+    private void loadEmployeesIntoComboBox(JComboBox<ComboItem> comboBox) {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT id, CONCAT(nombre, ' ', apellido) as nombre_completo FROM empleados");
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nombre = rs.getString("nombre_completo");
+                comboBox.addItem(new ComboItem(nombre, id));
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+            System.err.println("Error al cargar empleados: " + ex.getMessage());
+        }
+    }
+
+    // Cargar ventas en un combobox
+    private void loadSalesIntoComboBox(JComboBox<ComboItem> comboBox) {
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(
+                    "SELECT v.id, CONCAT('Venta #', v.id, ' - Cliente: ', c.nombre, ' - Fecha: ', v.fecha) as descripcion " +
+                            "FROM ventas v " +
+                            "LEFT JOIN clientes c ON v.cliente_id = c.id"
+            );
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String descripcion = rs.getString("descripcion");
+                comboBox.addItem(new ComboItem(descripcion, id));
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException ex) {
+            System.err.println("Error al cargar ventas: " + ex.getMessage());
         }
     }
 
@@ -504,13 +600,12 @@ public class GestionApp {
     }
 
     // Clase auxiliar para elementos de combobox
-        private record ComboItem(String label, int value) {
-
+    private record ComboItem(String label, int value) {
         @Override
-            public String toString() {
-                return label;
-            }
+        public String toString() {
+            return label;
         }
+    }
 
     // Métodos principal
     public static void main(String[] args) {
