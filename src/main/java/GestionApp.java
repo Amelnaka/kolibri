@@ -108,7 +108,7 @@ public class GestionApp {
             // Crear la URL de conexión
             String url = "jdbc:mysql://" + ip + ":" + port + "/" + db;
 
-            // Intentar conectar
+            // Intentar conectars
             connection = DriverManager.getConnection(url, user, password);
 
             JOptionPane.showMessageDialog(loginFrame, "Conexión exitosa a la base de datos",
