@@ -93,7 +93,7 @@ public class GestionApp {
         loginFrame.setVisible(true);
     }
 
-    // Método para conectar a la base de datos
+    // Métodos para conectar a la base de datos
     private void connectToDatabase() {
         String ip = ipField.getText();
         String port = portField.getText();
@@ -512,7 +512,7 @@ public class GestionApp {
             }
         }
 
-    // Método principal
+    // Métodos principal
     public static void main(String[] args) {
         // Establecer look and feel del sistema
         try {
