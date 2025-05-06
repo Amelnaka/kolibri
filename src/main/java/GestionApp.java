@@ -210,7 +210,7 @@ public class GestionApp {
             if (!e.getValueIsAdjusting() && dataTable.getSelectedRow() != -1) {
                 int row = dataTable.getSelectedRow();
                 StringBuilder details = new StringBuilder();
-                for (int i = 0; i < dataTable.getColumnCount(); i++) {
+                for (int i = 1; i < dataTable.getColumnCount(); i++) {
                     details.append(dataTable.getColumnName(i))
                             .append(": ")
                             .append(dataTable.getValueAt(row, i))
@@ -572,7 +572,7 @@ public class GestionApp {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 // Obtener el ID del elemento seleccionado (asumiendo que está en la primera columna)
-                Object idObj = table.getValueAt(selectedRow, 0);
+                Object idObj = table.getValueAt(selectedRow, 1);
                 int id = Integer.parseInt(idObj.toString());
 
                 // Ejecutar la consulta DELETE
