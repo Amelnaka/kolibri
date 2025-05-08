@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS inventario (
     cantidad INT NOT NULL,
     ubicacion VARCHAR(100),
     fecha_actualizacion DATE,
-    FOREIGN KEY (modelo_id) REFERENCES modelos_computadoras(id),
-    FOREIGN KEY (componente_id) REFERENCES componentes_computadoras(id)
+    --FOREIGN KEY (modelo_id) REFERENCES modelos_computadoras(id),
+    --FOREIGN KEY (componente_id) REFERENCES componentes_computadoras(id)
 );
 
 -- Tabla de ventas
